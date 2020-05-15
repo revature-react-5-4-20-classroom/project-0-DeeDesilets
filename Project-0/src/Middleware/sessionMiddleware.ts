@@ -1,44 +1,17 @@
-import express, {Request, Response, NextFunction} from 'express';
+import session from 'express-session';
 
-export function authRoleFactory(roles: string[]) {
 
-    return (req: Request, res: Response, next: NextFunction) => {
-    
-      if(!req.session || !req.session.user) {
-    
-        res.status(401).send('Please login');
-    
-      } else {
-  
-        let allowed = false;
-  
-        for(let role of roles) {
+const sessionConfig = {
 
-        if(req.session.user.role === role) {  
-  
-            allowed = true;  
-  
-        }
-    }
-  
-        if(allowed) {
-  
-            next();
-  
-        } else {
-  
-          res.status(403).send(`Not authorized with role: ${req.session.user.role}`);
-   
-        }
-  
-  
-  
-      }
-  
-  
-  
-    }
-  
-  
-  
-  }
+  secret: 'thisShouldBeSecret',
+
+  cookie: {secure:false},
+
+  resave: false,
+
+  saveUninitialized: false
+
+}
+
+export const sessionMiddleware = session(sessionConfig);
+

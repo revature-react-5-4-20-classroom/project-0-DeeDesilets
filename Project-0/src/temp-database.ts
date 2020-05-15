@@ -1,8 +1,8 @@
-import {Role} "./models/Role";
-import {User} from "./models/User";
-import {ReimbursementStatus} from "./models/ReimbursementStatus";
-import {ReimbursementType} from "./models/ReimbursementType";
-import {Reimbursement} from "./models/Reimbursement";
+import Role from './models/Role';
+import User from './models/User';
+import ReimbursementStatus from './models/ReimbursementStatus';
+import ReimbursementType from './models/ReimbursementType';
+import Reimbursement from './models/Reimbursement';
 
 export const users : User [] = [
     new User(1,'a.anderson', 'annie4598', 'Anne', 'Anderson', 'anne.anderson@abc.gov', 'employee'),
