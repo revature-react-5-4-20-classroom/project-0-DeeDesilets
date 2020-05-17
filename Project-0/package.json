@@ -2,9 +2,9 @@
   "name": "project-0",
   "version": "1.0.0",
   "description": "Project 0",
-  "main": "src/project-0.ts",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node src/project-0.ts",
+    "start": "nodemon --exec ts-node src/index.ts",
     "test": "echo \"testing not configured\" && exit 1"
   },
   "author": "Dee Desilets",
@@ -17,7 +17,9 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/pg": "^7.14.3",
     "express": "^4.17.1",
-    "express-session": "^1.17.1"
+    "express-session": "^1.17.1",
+    "pg": "^8.2.0"
   }
 }

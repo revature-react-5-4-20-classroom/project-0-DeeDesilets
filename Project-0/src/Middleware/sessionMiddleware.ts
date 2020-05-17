@@ -1,6 +1,5 @@
 import session from 'express-session';
 
-
 const sessionConfig = {
 
   secret: 'thisShouldBeSecret',

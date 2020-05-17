@@ -1,76 +1,96 @@
-import express, {Router, Request, Response} from 'express';
-import {authRoleFactory} from '../Middleware/authMiddleware';
-import {users} from '../temp-database';
-import User from '../models/User';
-import session from 'express-session';
+import express, { Router, Request, Response, NextFunction } from 'express';
 
-export const usersRouter : Router = express.Router();
+import  User  from '../models/User';
 
-usersRouter.get('/users', (req: Request, res: Response) => {
+import { getAllUsers, addNewUser, updateUser, getUserByID} from '../repository/user-data-access';
+
+export const usersRouter: Router = express.Router();
+
+usersRouter.get('/users', async (req: Request, res: Response, next: NextFunction) => {
+
+  console.log('made it to usersRouter, get@/users');
+
+  if (req.session && req.session.role === 'finance manager')   {
+      try {
+    console.log('hi from inside try block on usersRouter');
+          
+      res.json(getAllUsers());
+      }
+        
+       catch (e) {
+    console.log("caught error on usersRouter");
+        next(e);
+    
+      }
+  } else {
+        
+    res.sendStatus(401).send('The incoming token has expired.');
+    }
+  });
+
+
+usersRouter.get('/users/:id', async (req: Request, res: Response, next: NextFunction) => {
+
+  console.log('made it to usersRouter, get@/users');
+
+  const id = +req.params.id;
+
+  if(isNaN(id)) {
+
+    res.status(400).send('Must include numeric id in path');
+
+} else if ((req.session && req.session.user.role === 'finance manager') || (req.session && req.session.user.userId === id)) {
+      try {
+      console.log('hi from inside try block on usersRouter');
+        res.json(getUserByID(id));
+      }
+      catch (e) {
+      console.log("caught error on usersRouter");
+        next(e);
+    
+      } }else {res.sendStatus(401).send('The incoming token has expired.');}
+    });
   
-  if(!req.session || !req.session.user) {
 
-    res.status(401).send('Please login');
-    
-  } else if (authRoleFactory(['finance-manager'])) {
-    
-        res.json(users);
+
+
+usersRouter.patch('/users', async (req: Request, res: Response) => {
+  console.log('hi from usersRouter');
+    let {userId, username, password, firstName, lastName, email, role} = req.body;
+  console.log('hi from before if');
+  console.log(`${userId}, ${username}, ${password}, ${firstName}, ${lastName}, ${email}, ${role}`);
+    if(userId && username && password && firstName && lastName && email && role) {
+  console.log('hi from inside if');
+      if (await updateUser(userId, username, password, firstName, lastName, email, role)) {
+  
+      res.sendStatus(201);
+  
+    } else {
+  
+      res.sendStatus(400).send('Please include required fields.');
+  
+    }}
+    });
+
+
+usersRouter.post('/users', async (req: Request, res: Response) => {
+console.log('hi from usersRouter');
+  let {userId, username, password, firstName, lastName, email, role} = req.body;
+console.log('hi from before if');
+console.log(`${userId}, ${username}, ${password}, ${firstName}, ${lastName}, ${email}, ${role}`);
+  if(userId && username && password && firstName && lastName && email && role) {
+console.log('hi from inside if');
+    await addNewUser(new User(userId, username, password, firstName, lastName, email, role));
+
+    res.sendStatus(201);
+
+  } else {
+
+    res.status(400).send('Please include required fields.');
+
   }
-    else {
-        console.log("The incoming token has expired");
-};})
 
-function getUserById(id: number): User {
-
-  return users.filter((user) => {
-
-    user.userId === id;
-
-})[0];
-
-}
-
-usersRouter.get('/users/:id', (req : Request, res : Response) => {
-  
-  
-    const id = +req.params.id; 
-  
-    if(isNaN(id)) {
-  
-      res.status(400).send('Must include numeric id in path');
-  
-    } else if (authRoleFactory(['finance manager']) && req.session.Userid === id){
-  
-      res.json(getUserById(id));
-  
-    };
-  
-  
 });
 
-usersRouter.patch('/users', (req : Request, res : Response) => { 
-  
-  if(authRoleFactory(["admin"]) && req.body.user.userId) {
 
-      let foundIt : User = (users.filter((id) => {id = req.body.user.userId}))[0];
-      let {Id, userName, passWord, firstname, lastname, eMail, Role} = req.body;
-      if (userName) {
-        foundIt.username = userName; 
-        }
-      if (passWord){
-        foundIt.password = passWord;
-      }
-      if (firstname){
-        foundIt.firstName = firstname;
-      }
-      if (lastname){
-        foundIt.lastName = lastname;
-      }
-      if (eMail){
-        foundIt.email = eMail;
-      }
-      if (Role){
-        foundIt.role = Role;
-      }
-      res.json(foundIt);
-  }});
+

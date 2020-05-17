@@ -1,17 +1,28 @@
 import express, {Router, Request, Response} from 'express';
-import { users } from '../temp-database';
-
+//import User from '../models/User';
+import {checkingCredentials} from '../repository/user-data-access'
 export const loginRouter : Router = express.Router();
 
 
-loginRouter.post('/login', (req: Request, res: Response) => {
 
-  if ((users.filter((user) => {
-    user.username === req.body.username && user.password === req.body.password})).length>0){
-      console.log(users[0]);
-      res.json(users[0]);
-    } else {
-        res.sendStatus(400).send('Invalid Credentials');  
-       
-      }
-})
+loginRouter.post('/login', async (req: Request, res: Response) => {
+  // assumes users login with username and password inside a JSON object
+  
+  const {username, password} = req.body;
+  if( !username || !password) {
+    res.status(400).send('Please include username and password fields for login');
+  } else {
+    try {
+      const user = await checkingCredentials(username, password);
+      if(user && req.session) {
+        req.session.user = user;
+        res.json(user);
+      } else if (!user)
+        res.status(400).send("Invalid Credentials");
+    } catch (e) {
+      console.log(e.message);
+      res.status(400).send('Invalid Credentials');
+    }
+
+  }
+});

@@ -1,3 +1,4 @@
+
 export default class User 
 {
 
@@ -15,7 +16,8 @@ export default class User
 		this.firstName=firstName;
 		this.lastName=lastName;
 		this.email=email;
-		this.role=role;
+		this.role = role;
+		
 	}
 	
 }

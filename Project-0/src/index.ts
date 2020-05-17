@@ -1,22 +1,56 @@
 
-import express, {Application, Request, Response} from 'express';
+import express, {Application, Request, Response, NextFunction} from 'express';
+import session from 'express-session';
 import bodyparser from 'body-parser';
 import {usersRouter} from './Routers/usersRouter';
 import {loginRouter} from './Routers/loginRouter';
 import {reimbursementsRouter} from './Routers/reimbursementsRouter';
-import {authRoleFactory} from './Middleware/authMiddleware';
+import { PoolClient, QueryResult } from 'pg';
+import { connectionPool } from './repository'
+import {sessionMiddleware} from './Middleware/sessionMiddleware';
+import { loggingMiddleware } from './Middleware/LoggingMiddleware';
+ 
 
+const PORT : number = 5432;
 
-const PORT : number = 8864;
 const app: Application = express();
+
 app.use(bodyparser.json());
-app.use(authRoleFactory);
+app.use(sessionMiddleware);
+app.use(loggingMiddleware);
+
+app.use(loginRouter);
 
 
 app.use(usersRouter);
-app.use(loginRouter);
+
 app.use(reimbursementsRouter);
 
 
-app.listen(8864, () => {console.log("listening on http://localhost: ${PORT}");});
+app.listen(5432, () => {
+    console.log(`listening on http://localhost: ${PORT}, testing connection`);
+    connectionPool.connect().then((client : PoolClient)=>{
 
+        console.log('connected');
+        }).catch ((client : PoolClient) => {
+            console.log("promise rejected");
+        })
+});
+
+/*This just tests index.ts at various points before more complicated functions are added back in
+
+app.get('/users', (req:Request, res: Response) => {
+    console.log("It's a start");
+    res.json("hi, there!");
+});
+
+app.post('/users', (req:Request, res: Response) => {
+    console.log("something posted at /users");
+    res.status(201).send("Created");
+});
+
+app.post('/login', (req:Request, res: Response) => {
+    console.log(req.body);
+    
+    res.status(201).send("Created");
+});*/

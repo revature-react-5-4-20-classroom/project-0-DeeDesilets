@@ -1,12 +1,12 @@
 import express, {Router, Request, Response, request} from 'express';
 import Reimbursement from '../models/Reimbursement';
-import {reimbursements} from '../temp-database';
 import {authRoleFactory} from '../Middleware/authMiddleware';
 import session from 'express-session';
+//import {getReimbursementsById} from '../repository/user-data-access'
 
 export const reimbursementsRouter : Router = express.Router();
 
-reimbursementsRouter.post('/reimbursements', (req : Request, res : Response) => {
+/*/reimbursementsRouter.post('/reimbursements', (req : Request, res : Response) => {
   
     let {id, author, amount, dateSubmitted, dateResolved, description, resolver, status, type} = req.body;
   
@@ -57,15 +57,7 @@ reimbursementsRouter.patch('/reimbursements', (req : Request, res : Response) =>
         res.json(foundIt);
     }});
 
-    function getReimbursementsById(id: number): Reimbursement [] {
-
-      return reimbursements.filter((status) => {
     
-        status.status === id;
-    
-    });
-    
-    }
 
 
 reimbursementsRouter.get('/reimbursements/status/:statusId', (req : Request, res : Response) => {
@@ -76,23 +68,20 @@ reimbursementsRouter.get('/reimbursements/status/:statusId', (req : Request, res
   
       res.status(400).send('Must include numeric id in path');
   
-    } else if (authRoleFactory(['finance manager']) {
+    } else {
+      
+      if (authRoleFactory(['finance manager']))
+      {
   
       res.json(getReimbursementsById(id));
   
-    };
+      }
+    }
+  });
 
 
 
-function getReimbursementsByUser(id: number): Reimbursement [] {
 
-  return reimbursements.filter((author) => {
-
-    author.author === id;
-
-});
-
-}
 
 
 reimbursementsRouter.get('/reimbursements/author/userId/:userId', (req : Request, res : Response) => {
@@ -103,20 +92,12 @@ reimbursementsRouter.get('/reimbursements/author/userId/:userId', (req : Request
 
     res.status(400).send('Must include numeric id in path');
 
-  } else if (authRoleFactory(['finance manager']) && req.session.reimbursement.status === id) {
+  } else {
+    
+    if ((req.session && req.session.role ==='finance manager') && (req.session && req.session.userId === id)) {
 
     res.json(getReimbursementsById(id));
 
-  };
-}
-
-
-
-  
-  
-    
-  
-  
-  
-
-  
+    };
+  }
+});*/
