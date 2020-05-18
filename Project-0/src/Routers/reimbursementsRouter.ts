@@ -7,7 +7,7 @@ import {getReimbursementsBySID, getReimbursementsByAUID, getAllReimbursements, S
 export const reimbursementsRouter : Router = express.Router();
 
 
-reimbursementsRouter.get('/reimbursements/status/:statusId', async (req : Request, res : Response, next : NextFunction) =>{
+reimbursementsRouter.get('/status/:statusId', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to reimbursementsRouter, get@/reimbursements/status/:statusId');
 
   const id = +req.params.statusid;
@@ -28,7 +28,7 @@ reimbursementsRouter.get('/reimbursements/status/:statusId', async (req : Reques
       } }else {res.sendStatus(401).send('The incoming token has expired.');}
 })
 
- reimbursementsRouter.get('/reimbursements/author/userId/:userId', async (req : Request, res : Response, next : NextFunction) =>{
+ reimbursementsRouter.get('/author/userId/:userId', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements/author/userId/:userId');
     
   const id = +req.params.statusid;
@@ -49,7 +49,7 @@ reimbursementsRouter.get('/reimbursements/status/:statusId', async (req : Reques
           } }else {res.sendStatus(401).send('The incoming token has expired.');}
 })
 
-reimbursementsRouter.get('/reimbursements', async (req : Request, res : Response, next : NextFunction) =>{
+reimbursementsRouter.get('/', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements');
     
   if (req.session && req.session.user.role === 'finance manager')  {
@@ -65,24 +65,24 @@ reimbursementsRouter.get('/reimbursements', async (req : Request, res : Response
 })
 
 // assumes users send request with fields for new reimbursement in a JSON object in the request body
-reimbursementsRouter.post('/reimbursements', async (req : Request, res : Response, next : NextFunction) =>{
+reimbursementsRouter.post('/', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements');
-  const {author, amount, datesubmitted, description, resolver, status, type} = req.body; 
+  const {author, amount, datesubmitted, description, type} = req.body; 
   
           try {
           console.log('hi from inside try block on usersRouter');
-            res.json(SubmitReimbursements(author, amount, datesubmitted, description, resolver, status, type));  //returns a single reimbursement
-            res.sendStatus(201).send("Created");
+            res.status(201).send(SubmitReimbursements(author, amount, datesubmitted, description, type));  //returns a single reimbursement
+            //res.sendStatus(201).send("Created");
           }
           catch (e) {
-          console.log("caught error on usersRouter");
-            next(e);
+          console.log("caught error on reimbursementsRouter");
+           // next(e);
         
           } 
 })
 
 // assumes users send request with fields to update inside a JSON object in the request body
-reimbursementsRouter.patch('/reimbursements', async (req : Request, res : Response, next : NextFunction) =>{
+reimbursementsRouter.patch('/', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements');
   const {reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type} = req.body; 
   if (req.session && req.session.user.role === 'finance manager')  {

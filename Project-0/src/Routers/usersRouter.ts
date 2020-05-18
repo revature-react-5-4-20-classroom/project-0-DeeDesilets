@@ -5,7 +5,7 @@ import { getAllUsers, /*addNewUser, */updateUser, getUserByID} from '../reposito
 export const usersRouter: Router = express.Router();
 
 
-usersRouter.get('/users', async (req: Request, res: Response, next: NextFunction) => {
+usersRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
   console.log('made it to usersRouter, get@/users');
 
@@ -27,7 +27,7 @@ usersRouter.get('/users', async (req: Request, res: Response, next: NextFunction
     }
   })
 
-usersRouter.get('/users/:id', async (req: Request, res: Response, next: NextFunction) => {
+usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
   console.log('made it to usersRouter, get@/users');
 
@@ -52,7 +52,7 @@ usersRouter.get('/users/:id', async (req: Request, res: Response, next: NextFunc
 
 
 
-usersRouter.patch('/users', async (req: Request, res: Response) => {
+usersRouter.patch('/', async (req: Request, res: Response) => {
   console.log('hi from usersRouter');
     let {userId, username, password, firstName, lastName, email, role} = req.body;
   console.log('hi from before if');
@@ -72,7 +72,7 @@ usersRouter.patch('/users', async (req: Request, res: Response) => {
  })
 
 
-/*usersRouter.post('/users', async (req: Request, res: Response) => {
+/*usersRouter.post('/', async (req: Request, res: Response) => {
 console.log('hi from usersRouter');
   let {userId, username, password, firstName, lastName, email, role} = req.body;
 console.log('hi from before if');

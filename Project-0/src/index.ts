@@ -11,7 +11,7 @@ import {sessionMiddleware} from './Middleware/sessionMiddleware';
 import { loggingMiddleware } from './Middleware/LoggingMiddleware';
  
 
-const PORT : number = 5432;
+const PORT : number = 6464;
 
 const app: Application = express();
 
@@ -19,14 +19,14 @@ app.use(bodyparser.json());
 app.use(sessionMiddleware);
 app.use(loggingMiddleware);
 
-app.use(loginRouter);
+app.use('/login', loginRouter);
 
-app.use(usersRouter);
+app.use('/users', usersRouter);
 
-app.use(reimbursementsRouter);
+app.use('/reimbursements', reimbursementsRouter);
 
 
-app.listen(5432, () => {
+app.listen(6464, () => {
     console.log(`listening on http://localhost: ${PORT}, testing connection`);
     connectionPool.connect().then((client : PoolClient)=>{
 
@@ -35,6 +35,7 @@ app.listen(5432, () => {
             console.log("promise rejected");
         })
 });
+
 
 /*This just tests index.ts at various points before more complicated functions are added back in
 

@@ -19,9 +19,11 @@ export async function getAllUsers(): Promise<User[]> {
   for(let row of result.rows) {
     console.log(row.username);
     }
-  return result.rows.map((u) => {
+  let returnArray = result.rows.map((u) => {
     return new User(u.id, u.username, u.password, u.firstName, u.lastName, u.email, u.role);
     });
+  console.log (returnArray);
+  return returnArray;
   } catch(e) {
     throw new Error(`Failed to query for all users: ${e.message}`);
     } finally {
@@ -221,18 +223,16 @@ export async function getAllReimbursements() : Promise<Reimbursement[]> {
 }
 
 
-export async function SubmitReimbursements (author : number, amount : number, datesubmitted : number, description : string, resolver : number, status : number, type : number ) : Promise<Reimbursement> {
-  console.log("hi from submitreimbursents");
+export async function SubmitReimbursements (author : number, amount : number, datesubmitted : number, description : string, type : number ) : Promise<Reimbursement> {
+  console.log("hi from submitreimbursements");
   let client : PoolClient;
   client = await connectionPool.connect();
   try {
     let result : QueryResult;
     result = await client.query(
     `INSERT INTO reimbursements
-    ("reimbursementid", "author", "amount", "datesubmitted", "description", "resolver", "status", "type")
-      VALUES(0, ${author}, ${amount}, ${datesubmitted},
-         , ${description}, ${resolver}, ${status}, 
-         ${type});`
+    ("reimbursementid", "author", "amount", "datesubmitted", "dateresolved", "description", "resolver", "status", "type")
+      VALUES(DEFAULT, ${author}, ${amount}, ${datesubmitted}, -999999, ${description}, 1, 3, ${type});`
     );
   console.log(result);
   for(let row of result.rows) {
