@@ -1,10 +1,9 @@
 import express, { Router, Request, Response, NextFunction } from 'express';
-
 import  User  from '../models/User';
-
-import { getAllUsers, addNewUser, updateUser, getUserByID} from '../repository/user-data-access';
+import { getAllUsers, /*addNewUser, */updateUser, getUserByID} from '../repository/user-data-access';
 
 export const usersRouter: Router = express.Router();
+
 
 usersRouter.get('/users', async (req: Request, res: Response, next: NextFunction) => {
 
@@ -26,8 +25,7 @@ usersRouter.get('/users', async (req: Request, res: Response, next: NextFunction
         
     res.sendStatus(401).send('The incoming token has expired.');
     }
-  });
-
+  })
 
 usersRouter.get('/users/:id', async (req: Request, res: Response, next: NextFunction) => {
 
@@ -49,7 +47,7 @@ usersRouter.get('/users/:id', async (req: Request, res: Response, next: NextFunc
         next(e);
     
       } }else {res.sendStatus(401).send('The incoming token has expired.');}
-    });
+    })
   
 
 
@@ -69,11 +67,12 @@ usersRouter.patch('/users', async (req: Request, res: Response) => {
   
       res.sendStatus(400).send('Please include required fields.');
   
-    }}
-    });
+    }
+  }
+ })
 
 
-usersRouter.post('/users', async (req: Request, res: Response) => {
+/*usersRouter.post('/users', async (req: Request, res: Response) => {
 console.log('hi from usersRouter');
   let {userId, username, password, firstName, lastName, email, role} = req.body;
 console.log('hi from before if');
@@ -90,7 +89,7 @@ console.log('hi from inside if');
 
   }
 
-});
+})*/
 
 
 
