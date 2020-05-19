@@ -9,44 +9,46 @@ export const reimbursementsRouter : Router = express.Router();
 
 reimbursementsRouter.get('/status/:statusId', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to reimbursementsRouter, get@/reimbursements/status/:statusId');
-
-  const id = +req.params.statusid;
-  /*console.log(id);
+console.log(req.session);
+  const id = +req.params.statusId;
+  console.log(id);
   if(isNaN(id)) {
 
     res.status(400).send('Must include numeric id in path');
 
-} else */if (req.session && req.session.user.role === 'finance manager') {
+} else if (req.session && req.session.user.role === 'finance manager') {
       try {
       console.log('hi from inside try block on usersRouter');
-        res.json(getReimbursementsBySID(id));  //returns an ordered reimbursement array by date
+      const reimbursements = await getReimbursementsBySID(id);
+        res.json(reimbursements);  //returns an ordered reimbursement array by date
       }
       catch (e) {
-      console.log("caught error on usersRouter");
-        next(e);
+        console.log("caught error on reimbursementsRouter");
+          next(e);
     
-      } }else {res.sendStatus(401).send('The incoming token has expired.');}
+      } }else {res.status(401).send('The incoming token has expired.');}
 })
 
  reimbursementsRouter.get('/author/userId/:userId', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements/author/userId/:userId');
-    
-  const id = +req.params.statusid;
-   /*console.log(id);
+    console.log(req.session);
+  const id = +req.params.userId;
+  console.log(id);
       if(isNaN(id)) {
     
         res.status(400).send('Must include numeric id in path');
     
-    } else */if ((req.session && req.session.user.role === 'finance manager') || (req.session && req.session.user.userId === id)) {
+    } else if (((req.session) && (req.session.user.role === 'finance manager')) || (req.session && req.session.user.userId === id)) {
           try {
           console.log('hi from inside try block on usersRouter');
-            res.json(getReimbursementsByAUID(id));  //returns an ordered reimbursement array by date
+          let reimbursement : Reimbursement[] = await getReimbursementsByAUID(id);
+            res.json(reimbursement);  //returns an ordered reimbursement array by date
           }
           catch (e) {
           console.log("caught error on usersRouter");
             next(e);
         
-          } }else {res.sendStatus(401).send('The incoming token has expired.');}
+          } }else {res.status(401).send('The incoming token has expired.');}
 })
 
 reimbursementsRouter.get('/', async (req : Request, res : Response, next : NextFunction) =>{
@@ -55,13 +57,14 @@ reimbursementsRouter.get('/', async (req : Request, res : Response, next : NextF
   if (req.session && req.session.user.role === 'finance manager')  {
           try {
           console.log('hi from inside try block on usersRouter');
-            res.json(getAllReimbursements());  //returns an ordered reimbursement array by date
+          let reimbursements = await getAllReimbursements();
+            res.json(reimbursements);  //returns an ordered reimbursement array by date
           }
           catch (e) {
           console.log("caught error on usersRouter");
             next(e);
         
-          } }else {res.sendStatus(401).send('The incoming token has expired.');}
+          } }else {res.status(401).send('The incoming token has expired.');}
 })
 
 // assumes users send request with fields for new reimbursement in a JSON object in the request body
@@ -95,7 +98,7 @@ reimbursementsRouter.patch('/', async (req : Request, res : Response, next : Nex
             next(e);
         
           } 
-  }else {res.sendStatus(401).send('The incoming token has expired.');}
+  }else {res.status(401).send('The incoming token has expired.');}
 })
 
     

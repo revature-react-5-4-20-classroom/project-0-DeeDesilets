@@ -20,7 +20,7 @@ export async function getAllUsers(): Promise<User[]> {
     console.log(row.username);
     }
   let returnArray = result.rows.map((u) => {
-    return new User(u.id, u.username, u.password, u.firstName, u.lastName, u.email, u.role);
+    return new User(u.userid, u.username, u.password, u.firstname, u.lastname, u.email, u.role);
     });
   console.log (returnArray);
   return returnArray;
@@ -146,13 +146,12 @@ export async function getReimbursementsBySID(id : number) : Promise<Reimbursemen
     result = await client.query(
       `SELECT *
       FROM reimbursements 
-      WHERE reimbursements_status = ${id}
-      ORDER BY reimbursements_datesubmitted DESC;`
+      WHERE status = ${id}
+      ORDER BY datesubmitted DESC;`
     );
   console.log(result);
-  for(let row of result.rows) {
-      console.log(row.username);
-  }
+  
+  
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
@@ -175,13 +174,11 @@ export async function getReimbursementsByAUID(id : number) : Promise<Reimburseme
     result = await client.query(
       `SELECT *
       FROM reimbursements 
-      WHERE reimbursements_author = ${id}
-      ORDER BY reimbursements_datesubmitted DESC;`
+      WHERE author = ${id}
+      ORDER BY datesubmitted DESC;`
     );
   console.log(result);
-  for(let row of result.rows) {
-      console.log(row.username);
-  }
+  
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
@@ -204,12 +201,10 @@ export async function getAllReimbursements() : Promise<Reimbursement[]> {
     result = await client.query(
       `SELECT *
       FROM reimbursements 
-      ORDER BY reimbursements_datesubmitted DESC;`
+      ORDER BY datesubmitted DESC;`
     );
   console.log(result);
-  for(let row of result.rows) {
-      console.log(row.username);
-  }
+  
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
@@ -235,9 +230,7 @@ export async function SubmitReimbursements (author : number, amount : number, da
       VALUES(DEFAULT, ${author}, ${amount}, ${datesubmitted}, -999999, ${description}, 1, 3, ${type});`
     );
   console.log(result);
-  for(let row of result.rows) {
-      console.log(row.username);
-  }
+  
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
@@ -259,13 +252,11 @@ export async function UpdateReimbursements (reimbursementid? : number, author? :
     let result : QueryResult;
     result = await client.query(
     `UPDATE reimbursements
-    SET "author" = ${author}, "amount" = ${amount}, "datesubmitted" = ${datesubmitted}, "dateresolved" = ${dateresolved}, "description" = ${description}, "resolver" = ${resolver}, "status" = ${status}, "type" =${type})
-      WHERE "reimbursementid" = ${reimbursementid};`
+    SET "author" = ${author}, "amount" = ${amount}, "datesubmitted" = ${datesubmitted}, "dateresolved" = ${dateresolved}, "description" = ${description}, "resolver" = ${resolver}, "status" = ${status}, "type" =${type}
+    WHERE "reimbursementid" = ${reimbursementid};`
     );
   console.log(result);
-  for(let row of result.rows) {
-      console.log(row.username);
-  }
+  
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
@@ -277,5 +268,3 @@ export async function UpdateReimbursements (reimbursementid? : number, author? :
     client && client.release();
   }
 }
-
-

@@ -8,12 +8,13 @@ export const usersRouter: Router = express.Router();
 usersRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
   console.log('made it to usersRouter, get@/users');
+  console.log(req.session);
 
-  if (req.session && req.session.role === 'finance manager')   {
+  if ((req.session) && (req.session.user.role === 'finance manager')) {
       try {
     console.log('hi from inside try block on usersRouter');
-          
-      res.json(getAllUsers());
+       const users = await getAllUsers();  
+      res.json(users);
       }
         
        catch (e) {
@@ -22,8 +23,8 @@ usersRouter.get('/', async (req: Request, res: Response, next: NextFunction) => 
     
       }
   } else {
-        
-    res.sendStatus(401).send('The incoming token has expired.');
+      console.log("hi from inside else on usersRouter"); 
+    res.status(401).send('The incoming token has expired.');
     }
   })
 
@@ -37,10 +38,11 @@ usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
 
     res.status(400).send('Must include numeric id in path');
 
-} else if ((req.session && req.session.user.role === 'finance manager') || (req.session && req.session.user.userId === id)) {
+} else if ((req.session) && (req.session.user.role === 'finance manager')) || ((req.session) && (req.session.user.userId === id)) {
       try {
       console.log('hi from inside try block on usersRouter');
-        res.json(getUserByID(id));
+      const user = await getUserByID(id);
+        res.json(user);
       }
       catch (e) {
       console.log("caught error on usersRouter");
