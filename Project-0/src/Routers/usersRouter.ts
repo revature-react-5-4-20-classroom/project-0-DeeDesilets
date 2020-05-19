@@ -1,6 +1,6 @@
 import express, { Router, Request, Response, NextFunction } from 'express';
 import  User  from '../models/User';
-import { getAllUsers, /*addNewUser, */updateUser, getUserByID} from '../repository/user-data-access';
+import { getAllUsers, addNewUser, updateUser, getUserByID} from '../repository/user-data-access';
 
 export const usersRouter: Router = express.Router();
 
@@ -54,40 +54,51 @@ usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
 
 
 
-usersRouter.patch('/', async (req: Request, res: Response) => {
+usersRouter.patch('/', async (req: Request, res: Response, next: NextFunction) => {
   console.log('hi from usersRouter');
   console.log(req.body);
   console.log(req.session);
   if ((req.session) && (req.session.user.role === 'admin')) {
     let user : User = req.body;
-    
-  console.log('hi from inside authorizing if');
-  console.log(`${user.userId}, ${user.username}, ${user.password}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.role}`);
+    console.log('hi from inside authorizing if');
+    console.log(`${user.userId}, ${user.username}, ${user.password}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.role}`);
+    try {
     let newUser = await updateUser(user.userId, user.username, user.password, user.firstName, user.lastName, user.email, user.role);
     res.status(201).send(newUser);
-    }else {
-    res.status(401).send('The incoming token has expired.')}
-  } )
-
-
-/*usersRouter.post('/', async (req: Request, res: Response) => {
-console.log('hi from usersRouter');
-  let {userId, username, password, firstName, lastName, email, role} = req.body;
-console.log('hi from before if');
-console.log(`${userId}, ${username}, ${password}, ${firstName}, ${lastName}, ${email}, ${role}`);
-  if(userId && username && password && firstName && lastName && email && role) {
-console.log('hi from inside if');
-    await addNewUser(new User(userId, username, password, firstName, lastName, email, role));
-
-    res.sendStatus(201);
-
-  } else {
-
-    res.status(400).send('Please include required fields.');
-
+    
+  } catch (e) {
+    console.log("caught error on usersRouter");
+    next(e);
   }
+} else {
+    res.status(401).send('The incoming token has expired.');
+  }
+  })
 
-})*/
+
+usersRouter.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  console.log('hi from usersRouter');
+  let {userId, username, password, firstName, lastName, email, role} = req.body;
+  console.log('hi from before if');
+  console.log(`${username}, ${password}, ${firstName}, ${lastName}, ${email}, ${role}`);
+  console.log(req.session);
+
+  if ((username && password && firstName && lastName && email && role) && ((req.session) && (req.session.user.role === 'admin'))) {
+    try {
+      console.log('hi from inside if');
+      let newUser : User = await addNewUser(new User(userId, username, password, firstName, lastName, email, role));
+      res.status(201).send(newUser);
+    } catch (e){
+      console.log("caught error on usersRouter");
+      next(e);
+    }
+ } else if (!userId || !username || !password || !firstName || !lastName || !email || !role) 
+   {
+   } else {
+     res.status(401).send("The incoming token has expird.")
+   }
+
+})
 
 
 

@@ -89,17 +89,21 @@ reimbursementsRouter.post('/', async (req : Request, res : Response, next : Next
 // assumes users send request with fields to update inside a JSON object in the request body
 reimbursementsRouter.patch('/', async (req : Request, res : Response, next : NextFunction) =>{
   console.log('made it to, get@/reimbursements');
-  const {reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type} = req.body; 
-  if (req.session && req.session.user.role === 'finance manager')  {
+  console.log(req.session);
+  if ((req.session) && (req.session.user.role === 'finance manager')) {
+    let reimbursement : Reimbursement = req.body;
+    console.log(req.body);
+    console.log('hi from inside authorizing if');
+    console.log(`${reimbursement.reimbursementId}, ${reimbursement.author}, ${reimbursement.amount}, ${reimbursement.dateSubmitted}, ${reimbursement.dateResolved}, ${reimbursement.description}, ${reimbursement.resolver}, ${reimbursement.status}, ${reimbursement.type}`);
+  
           try {
           console.log('hi from inside try block on usersRouter'); 
-          let reimbursement = await updateReimbursements(reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type );  //returns a single reimbursement
+          let newreimbursement = await updateReimbursements(reimbursement.reimbursementId, reimbursement.author, reimbursement.amount, reimbursement.dateSubmitted, reimbursement.dateResolved, reimbursement.description, reimbursement.resolver, reimbursement.status, reimbursement.type );  //returns a single reimbursement
             res.status(201).send(reimbursement);
           }
           catch (e) {
           console.log("caught error on usersRouter");
             next(e);
-        
           }
   }else {res.status(401).send('The incoming token has expired.');}
 })

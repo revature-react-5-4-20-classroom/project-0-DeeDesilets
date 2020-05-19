@@ -2,6 +2,7 @@ import  User  from '../models/User';
 import Reimbursement from '../models/Reimbursement';
 import { PoolClient, QueryResult } from 'pg';
 import { connectionPool } from '.';
+import { usersRouter } from '../Routers/usersRouter';
 
 
 
@@ -32,7 +33,7 @@ export async function getAllUsers(): Promise<User[]> {
   }
 }
 
-export async function updateUser(userId: number, userName: string, passWord: string, firstName: string, lastName: string, eMail: string, roLe: string) : Promise<User> {
+export async function updateUser(userId?: number, userName?: string, passWord?: string, firstName?: string, lastName?: string, eMail?: string, roLe?: string) : Promise<User> {
   console.log('hi from updateuser');
   let client : PoolClient = await connectionPool.connect();
   try {
@@ -45,10 +46,10 @@ export async function updateUser(userId: number, userName: string, passWord: str
     if (lastName) {query += `lastname = '${lastName}'`;}
     if (eMail) {query +=  `email = '${eMail}'`;}
     if (roLe) {query += `role = '${roLe}'`;}
-console.log(query);
+    console.log(query);
     
     await client.query(
-     `UPDATE users '
+     `UPDATE users 
       SET ${query}
       WHERE userid = ${userId};` 
     )
@@ -71,22 +72,27 @@ console.log(query);
   }
   }
   
-/*export async function addNewUser(user: User) : Promise<boolean> {
+export async function addNewUser(user: User) : Promise<User> {
 console.log('hi from add a new user');
   let client : PoolClient = await connectionPool.connect();
 
   try {
-console.log('hi from inside try on addnewuser');
+  console.log('hi from inside try on addnewuser');
     
-    let insertUserResult : QueryResult = await client.query(
+   await client.query(
 
       `INSERT INTO users (userid, username, "password", firstname, lastname, email, role) VALUES
 
-      ($1, $2, $3, $4, $5, $6, $7);`, [user.userId, user.username, user.password, user.firstName, user.lastName, user.email, user.role]
-
+      (DEFAULT, $1, $2, $3, $4, $5, $6);`, [user.username, user.password, user.firstName, user.lastName, user.email, user.role]
     )
-
-    return true;
+    let result: QueryResult = await client.query(
+      `SELECT * FROM users
+      WHERE username = user.username;`
+    )
+    let newArray : User[] = result.rows.map((u) => {
+      return new User(u.userid, u.username, u.password, u.firstname, u.lastname, u.email, u.role);
+    });
+    return newArray[0];
 
   } catch (e) {
 
@@ -98,14 +104,13 @@ console.log('hi from inside try on addnewuser');
 
   }
 
-}*/
+}
 
 export async function checkingCredentials(username: string, password: string) : Promise<User> {
   let client : PoolClient;
   client = await connectionPool.connect();
   try {
-    let result : QueryResult;
-    result = await client.query(
+    let result : QueryResult = await client.query(
       `SELECT *
       FROM users 
       WHERE users.username = $1 AND users.password = $2;`, [username, password]
@@ -238,17 +243,12 @@ export async function getAllReimbursements() : Promise<Reimbursement[]> {
 
 export async function submitReimbursements (reimbursementId = 0, author : number, amount : number, datesubmitted : number, description : string, type : number ) : Promise<Reimbursement> {
   console.log("hi from submitreimbursements");
-  let client : PoolClient;
-  client = await connectionPool.connect();
+  let client : PoolClient  = await connectionPool.connect();
   try {
-    let result : QueryResult = await client.query(
-    `INSERT INTO reimbursements
-    (reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, "type")
-      VALUES (DEFAULT, ${author}, ${amount}, ${datesubmitted}, -999999, ${description}, -99, 3, ${type});`
-    )
+    let result : QueryResult = await client.query('INSERT INTO reimbursements (reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type) VALUES (DEFAULT, $1, $2, $3, -999999, $4, -99, 3, $5);', [author, amount, datesubmitted, description, type]);
   console.log(result);
-  
-  let newArray : Reimbursement[] = result.rows.map((u) => {
+  let returnValue : QueryResult = await client.query('SELECT * FROM reimbursements WHERE author = $1 AND datesubmitted = $2;', [author, datesubmitted]);
+  let newArray : Reimbursement[] = returnValue.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
   return newArray[0];
@@ -261,25 +261,34 @@ export async function submitReimbursements (reimbursementId = 0, author : number
 }
 
 
-export async function updateReimbursements (reimbursementid? : number, author? : number, amount? : number, datesubmitted? : number, dateresolved? : number, description? : string, resolver? : number, status? : number, type? : number ) : Promise<Reimbursement> {
+export async function updateReimbursements (reimbursementId? : number, author? : number, amount? : number, dateSubmitted? : number, dateResolved? : number, description? : string, resolver? : number, status? : number, type? : number ) : Promise<Reimbursement> {
   console.log("hi from updatereimbursments");
-  let client : PoolClient;
-  client = await connectionPool.connect();
+  let client : PoolClient = await connectionPool.connect();
   try {
-    let result : QueryResult;
-    result = await client.query(
-    `UPDATE reimbursements
-    SET "author" = ${author}, "amount" = ${amount}, "datesubmitted" = ${datesubmitted}, "dateresolved" = ${dateresolved}, "description" = ${description}, "resolver" = ${resolver}, "status" = ${status}, "type" =${type}
-    WHERE "reimbursementid" = ${reimbursementid};`
-    );
+    
+    if (author) {await client.query('UPDATE reimbursements SET author = $1 WHERE reimbursementid = $2;', [author, reimbursementId]);}
+    if (amount) {await client.query('UPDATE reimbursements SET amount = $1 WHERE reimbursementid = $2;', [amount, reimbursementId]);}
+    if (dateSubmitted) {await client.query('UPDATE reimbursements SET datesubmitted = $1 WHERE reimbursementid = $2;', [dateSubmitted, reimbursementId]);}
+    if (dateResolved) {await client.query('UPDATE reimbursements SET dateresolved = $1 WHERE reimbursementid = $2;', [dateResolved, reimbursementId]);}
+    if (description) {await client.query('UPDATE reimbursements SET description = $1 WHERE reimbursementid = $2;', [description, reimbursementId]);}
+    if (resolver) {await client.query('UPDATE reimbursements SET resolver = $1 WHERE reimbursementid = $2;', [resolver, reimbursementId]);}
+    if (status) {await client.query('UPDATE reimbursements SET status = $1 WHERE reimbursementid = $2;', [status, reimbursementId]);}
+    if (type) {await client.query('UPDATE reimbursements SET type = $1 WHERE reimbursementid = $2;', [type, reimbursementId]);}
+      
+    
+    
+    let result : QueryResult = await client.query(
+      'SELECT * FROM reimbursements WHERE reimbursementid = $1;', [reimbursementId]);
+    
   console.log(result);
   
   let newArray : Reimbursement[] = result.rows.map((u) => {
     return new Reimbursement(u.reimbursementid, u.author, u.amount, u.datesubmitted, u.dateresolved, u.description, u.resolver, u.status, u.type);
   });
+  console.log(newArray);
   return newArray[0];
   } catch(e) {
-    throw new Error(`Failed to query for all reimbursements: ${e.message}`);
+    throw new Error(`Failed to update reimbursement in database: ${e.message}`);
   } finally {
   
     client && client.release();
