@@ -79,16 +79,9 @@ console.log('hi from add a new user');
   try {
   console.log('hi from inside try on addnewuser');
     
-   await client.query(
-
-      `INSERT INTO users (userid, username, "password", firstname, lastname, email, role) VALUES
-
-      (DEFAULT, $1, $2, $3, $4, $5, $6);`, [user.username, user.password, user.firstName, user.lastName, user.email, user.role]
-    )
-    let result: QueryResult = await client.query(
-      `SELECT * FROM users
-      WHERE username = user.username;`
-    )
+   await client.query('INSERT INTO users (userid, username, "password", firstname, lastname, email, role) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6);', [user.username, user.password, user.firstName, user.lastName, user.email, user.role]);
+       let result: QueryResult = await client.query('SELECT * FROM users WHERE username = $1;', [user.username]);
+    
     let newArray : User[] = result.rows.map((u) => {
       return new User(u.userid, u.username, u.password, u.firstname, u.lastname, u.email, u.role);
     });
@@ -97,6 +90,7 @@ console.log('hi from add a new user');
   } catch (e) {
 
     throw new Error(`Failed to add user to DB: ${e.message}`);
+    
 
   } finally {
 

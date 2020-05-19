@@ -92,13 +92,13 @@ usersRouter.post('/', async (req: Request, res: Response, next: NextFunction) =>
       console.log("caught error on usersRouter");
       next(e);
     }
- } else if (!userId || !username || !password || !firstName || !lastName || !email || !role) 
-   {
-   } else {
-     res.status(401).send("The incoming token has expird.")
-   }
-
+ } else if  ((username && password && firstName && lastName && email && role) && (!(username && password && firstName && lastName && email && role))) {
+     
+  res.status(404).send("Please enter all required fields.");
+} else if (req.session && req.session.user.role !== 'admin') 
+{
+ res.status(401).send("The incoming token has expired."); 
+}
 })
-
 
 
