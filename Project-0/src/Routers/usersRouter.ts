@@ -38,7 +38,7 @@ usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
 
     res.status(400).send('Must include numeric id in path');
 
-} else if ((req.session) && (req.session.user.role === 'finance manager')) || ((req.session) && (req.session.user.userId === id)) {
+} else if (((req.session) && (req.session.user.role === 'finance manager')) || ((req.session) && (req.session.user.userId === id))) {
       try {
       console.log('hi from inside try block on usersRouter');
       const user = await getUserByID(id);
@@ -48,7 +48,7 @@ usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
       console.log("caught error on usersRouter");
         next(e);
     
-      } }else {res.sendStatus(401).send('The incoming token has expired.');}
+      } }else {res.status(401).send('The incoming token has expired.');}
     })
   
 
@@ -56,22 +56,18 @@ usersRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) 
 
 usersRouter.patch('/', async (req: Request, res: Response) => {
   console.log('hi from usersRouter');
-    let {userId, username, password, firstName, lastName, email, role} = req.body;
-  console.log('hi from before if');
-  console.log(`${userId}, ${username}, ${password}, ${firstName}, ${lastName}, ${email}, ${role}`);
-    if(userId && username && password && firstName && lastName && email && role) {
-  console.log('hi from inside if');
-      if (await updateUser(userId, username, password, firstName, lastName, email, role)) {
-  
-      res.sendStatus(201);
-  
-    } else {
-  
-      res.sendStatus(400).send('Please include required fields.');
-  
-    }
-  }
- })
+  console.log(req.body);
+  console.log(req.session);
+  if ((req.session) && (req.session.user.role === 'admin')) {
+    let user : User = req.body;
+    
+  console.log('hi from inside authorizing if');
+  console.log(`${user.userId}, ${user.username}, ${user.password}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.role}`);
+    let newUser = await updateUser(user.userId, user.username, user.password, user.firstName, user.lastName, user.email, user.role);
+    res.status(201).send(newUser);
+    }else {
+    res.status(401).send('The incoming token has expired.')}
+  } )
 
 
 /*usersRouter.post('/', async (req: Request, res: Response) => {

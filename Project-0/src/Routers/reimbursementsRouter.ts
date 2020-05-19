@@ -2,7 +2,7 @@ import express, {Router, Request, Response, NextFunction} from 'express';
 import Reimbursement from '../models/Reimbursement';
 //import {authRoleFactory} from '../Middleware/authMiddleware';
 //import session from 'express-session';
-import {getReimbursementsBySID, getReimbursementsByAUID, getAllReimbursements, SubmitReimbursements, UpdateReimbursements} from '../repository/user-data-access'
+import {getReimbursementsBySID, getReimbursementsByAUID, getAllReimbursements, submitReimbursements, updateReimbursements} from '../repository/user-data-access'
 
 export const reimbursementsRouter : Router = express.Router();
 
@@ -67,19 +67,21 @@ reimbursementsRouter.get('/', async (req : Request, res : Response, next : NextF
           } }else {res.status(401).send('The incoming token has expired.');}
 })
 
-// assumes users send request with fields for new reimbursement in a JSON object in the request body
+// assumes users send request with all necessary fields for new reimbursement 
+//[no date resolved, resolver, or status necessary] in a JSON object in the request body with Reimbursement ID = 0
 reimbursementsRouter.post('/', async (req : Request, res : Response, next : NextFunction) =>{
-  console.log('made it to, get@/reimbursements');
-  const {author, amount, datesubmitted, description, type} = req.body; 
+  console.log('made it to, post@/reimbursements');
+  const {reimbursementId, author, amount, datesubmitted, description, type} = req.body; 
   
           try {
           console.log('hi from inside try block on usersRouter');
-            res.status(201).send(SubmitReimbursements(author, amount, datesubmitted, description, type));  //returns a single reimbursement
-            //res.sendStatus(201).send("Created");
+          let reimbursement = await submitReimbursements(reimbursementId, author, amount, datesubmitted, description, type);  //returns a single reimbursement
+            res.status(201).send(reimbursement);
+            
           }
           catch (e) {
           console.log("caught error on reimbursementsRouter");
-           // next(e);
+          next(e);
         
           } 
 })
@@ -90,14 +92,15 @@ reimbursementsRouter.patch('/', async (req : Request, res : Response, next : Nex
   const {reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type} = req.body; 
   if (req.session && req.session.user.role === 'finance manager')  {
           try {
-          console.log('hi from inside try block on usersRouter');
-            res.json(UpdateReimbursements(reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type ));  //returns a single reimbursement
+          console.log('hi from inside try block on usersRouter'); 
+          let reimbursement = await updateReimbursements(reimbursementid, author, amount, datesubmitted, dateresolved, description, resolver, status, type );  //returns a single reimbursement
+            res.status(201).send(reimbursement);
           }
           catch (e) {
           console.log("caught error on usersRouter");
             next(e);
         
-          } 
+          }
   }else {res.status(401).send('The incoming token has expired.');}
 })
 
