@@ -92,7 +92,7 @@ usersRouter.post('/', async (req: Request, res: Response, next: NextFunction) =>
       console.log("caught error on usersRouter");
       next(e);
     }
- } else if  ((username && password && firstName && lastName && email && role) && (!(username && password && firstName && lastName && email && role))) {
+ } else if  (!(username && password && firstName && lastName && email && role)) {
      
   res.status(404).send("Please enter all required fields.");
 } else if (req.session && req.session.user.role !== 'admin') 

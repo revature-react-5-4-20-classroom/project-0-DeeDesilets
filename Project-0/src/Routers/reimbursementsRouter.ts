@@ -122,39 +122,3 @@ reimbursementsRouter.patch('/', async (req : Request, res : Response, next : Nex
 
 
 
-
-
-/*
-reimbursementsRouter.patch('/reimbursements', (req : Request, res : Response) => { 
-  
-  if(authRoleFactory(["finance manager"]) && req.body.reimbursement.reimbursementId) {
-  
-        let foundIt : Reimbursement = (reimbursements.filter((id) => {id = req.body.reimbursements.reimbursementId}))[0];
-        let {reimbursementId, author, amount, dateSubmitted, dateResolved, description, resolver, status, type} = req.body;
-        if (author) {
-          foundIt.author = author; 
-          }
-        if (amount){
-          foundIt.amount = amount;
-        }
-        if (dateSubmitted){
-          foundIt.dateSubmitted = dateSubmitted;
-        }
-        if (dateResolved){
-          foundIt.dateResolved = dateResolved;
-        }
-        if (description){
-          foundIt.description = description;
-        }
-        if (resolver){
-          foundIt.resolver = resolver;
-        }
-        if (status){
-          foundIt.status = status;
-        }
-        if (type){
-          foundIt.type = type;
-        }
-        res.json(foundIt);
-    }});
-*/
