@@ -14,4 +14,4 @@ export const connectionPool : Pool = new Pool({
   
     max: 5 //max number of connections
   
-  });
+});
