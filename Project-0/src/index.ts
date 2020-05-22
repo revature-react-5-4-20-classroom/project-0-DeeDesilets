@@ -36,8 +36,12 @@ app.listen(6464, () => {
         })
 });
 
-
-/*This just tests index.ts at various points before more complicated functions are added back in
+app.get('/newendpoint', (req: Request, res: Response) => {
+    console.log("Webhook works!");
+    res.json("Webhook works!");
+})
+/*This just tests i
+ndex.ts at various points before more complicated functions are added back in
 
 app.get('/users', (req:Request, res: Response) => {
     console.log("It's a start");
