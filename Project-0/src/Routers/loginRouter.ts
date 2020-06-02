@@ -19,9 +19,11 @@ loginRouter.post('/', async (req: Request, res: Response) => {
       if(user && req.session) {
         req.session.user = user;
         res.json(user);
-      } else if (!user)
+      } else if (!user) {
         res.status(400).send("Invalid Credentials");
-    } catch (e) {
+      } else {
+        res.sendStatus(400);
+    }} catch (e) {
       console.log(e.message);
       res.status(400).send('Invalid Credentials');
     }
