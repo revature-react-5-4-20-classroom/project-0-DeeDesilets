@@ -7,8 +7,8 @@ export const loginRouter : Router = express.Router();
 
 
 loginRouter.post('/', async (req: Request, res: Response) => {
-  // assumes users login with username and password inside a JSON object
-  
+  // assumes users login with username and password inside a JSON objec
+  console.log("made it to login router");
   const {username, password} = req.body;
   if( !username || !password) {
     res.status(400).send('Please include username and password fields for login');

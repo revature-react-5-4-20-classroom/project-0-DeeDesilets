@@ -5,31 +5,39 @@ import bodyparser from 'body-parser';
 import {usersRouter} from './Routers/usersRouter';
 import {loginRouter} from './Routers/loginRouter';
 import {reimbursementsRouter} from './Routers/reimbursementsRouter';
-import { PoolClient, QueryResult } from 'pg';
-import { connectionPool } from './repository'
+import {PoolClient, QueryResult} from 'pg';
+import dotenv from 'dotenv';
+// This must go above connection pool or we won't have our environment variables
+dotenv.config();
+import {connectionPool} from './repository'
 import {sessionMiddleware} from './Middleware/sessionMiddleware';
-import { loggingMiddleware } from './Middleware/LoggingMiddleware';
+import {loggingMiddleware} from './Middleware/LoggingMiddleware';
+import {corsFilter} from './Middleware/corsFilter';
  
 
 const PORT : number = 6464;
 
 const app: Application = express();
-
+console.log('after App, before CORS');
+app.use(corsFilter);
+console.log ('after cors, before bodyparser');
 app.use(bodyparser.json());
+console.log('after bodyparser, before session');
 app.use(sessionMiddleware);
+console.log('after session, before logging');
 app.use(loggingMiddleware);
-
+console.log('after logging');
 app.use('/login', loginRouter);
-
+console.log('after login');
 app.use('/users', usersRouter);
-
+console.log('after users router');
 app.use('/reimbursements', reimbursementsRouter);
-
+console.log('after reimbursements router');
 
 app.listen(6464, () => {
     console.log(`listening on http://localhost: ${PORT}, testing connection`);
     connectionPool.connect().then((client : PoolClient)=>{
-
+        console.log(process.env.PG_DATABASE);
         console.log('connected');
         }).catch ((client : PoolClient) => {
             console.log("promise rejected");
