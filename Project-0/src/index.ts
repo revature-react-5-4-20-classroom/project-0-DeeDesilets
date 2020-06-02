@@ -35,7 +35,7 @@ app.use('/reimbursements', reimbursementsRouter);
 console.log('after reimbursements router');
 
 app.listen(6464, () => {
-    console.log(`listening on http://localhost: ${PORT}, testing connection`);
+    console.log(`listening on http://3.81.26.224: ${PORT}, testing connection`);
     connectionPool.connect().then((client : PoolClient)=>{
         console.log(process.env.PG_DATABASE);
         console.log('connected');

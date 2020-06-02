@@ -16,14 +16,13 @@ loginRouter.post('/', async (req: Request, res: Response) => {
     try {
       console.log("inside try block on login router");
       const user = await checkingCredentials(username, password);
+      console.log(req.session);
       if(user && req.session) {
         req.session.user = user;
         res.json(user);
-      } else if (!user) {
-        res.status(400).send("Invalid Credentials");
-      } else {
-        res.sendStatus(400);
-    }} catch (e) {
+      } else if (!user || !req.session) {
+        res.status(400).send("Log in failed");
+      } } catch (e) {
       console.log(e.message);
       res.status(400).send('Invalid Credentials');
     }
